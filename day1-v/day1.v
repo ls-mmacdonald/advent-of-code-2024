@@ -12,6 +12,7 @@ fn read_file() ([]int, []int) {
   mut ll := []int{}
   mut lr := []int{}
 
+  // can't make re into a const because split mutates the receiver(?)
   mut re := regex.regex_opt(line_regex) or { panic(err) }
 
   lines := text.split_into_lines()

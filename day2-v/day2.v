@@ -29,39 +29,44 @@ fn read_file() ([][]int) {
   return levels
 }
 
-fn is_safe(level []int) bool {
+fn count_bad(level []int) int {
   // hack, use the first delta to determine what the sign for all deltas should be
   sign := level[1] - level[0]
 
+  mut bad_count := 0
   for i, num in level {
     if i == 0 {
       continue
     }
 
     delta := num - level[i - 1]
-    if delta == 0 || math.abs(delta) > 3 {
-      // magnitude of difference is zero or is too great
-      return false
-    }
-
-    // if sign of any delta differs from sign of the first delta, that's also a no-no
-    // since it means the numbers changed direction
-    if math.copysign(delta, sign) != delta {
-      return false
+    if delta == 0 // no change between levels 
+        || math.abs(delta) > 3  // change of magnitude >3 is bad
+        || math.copysign(delta, sign) != delta // delta's sign differs from the first delta's sign, that's bad (numbers changed direction)
+    {
+      bad_count += 1
     }
   }
-  return true
+  return bad_count
+}
+
+fn count_safe(levels [][]int, loose bool) int {
+  mut safe_count := 0
+  for _, level in levels {
+    bad_levels := count_bad(level)
+    if bad_levels == 0 || (loose && bad_levels == 1) {
+      safe_count += 1
+    }
+  }
+  return safe_count
 }
 
 fn main() {
   mut levels := read_file()
 
-  mut safe_count := 0
-  for _, level in levels {
-    if is_safe(level) {
-      safe_count += 1
-    }
-  }
-
+  safe_count := count_safe(levels, false)
   println('# of safe levels: ${safe_count}')
+
+  safe_count_with_dampener := count_safe(levels, true)
+  println('# of safe levels with dampener: ${safe_count_with_dampener}')
 }

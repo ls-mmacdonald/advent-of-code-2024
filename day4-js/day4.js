@@ -22,7 +22,7 @@ function findHorizontals(input = matrix) {
 }
 
 // copilot wrote this
-function transpose(input)  {
+function transpose(input) {
   return input[0].map((_, i) => input.map((row) => row[i]));
 }
 
@@ -42,13 +42,13 @@ function findDiagonals() {
     for (let j = 0; j < row.length; j++) {
       const cell = row[j];
       if (cell !== "X") {
-        continue
+        continue;
       }
       // check for MAS in adjacent positions around X:
-      //  M M  
-      //   X   
-      //  M M  
-      if ("M" === at(i - 1, j - 1)) { 
+      //  M M
+      //   X
+      //  M M
+      if ("M" === at(i - 1, j - 1)) {
         // M at top left
         if ("A" === at(i - 2, j - 2) && "S" === at(i - 3, j - 3)) {
           // console.log("Found XMAS to top left at (%d,%d)", i, j);
@@ -81,18 +81,71 @@ function findDiagonals() {
   return count;
 }
 
+// finds the count of X-shaped MAS occurrences
+function findXmasCount() {
+  const at = getCoords.bind(null, matrix);
+
+  let count = 0;
+  for (let i = 0; i < matrix.length; i++) {
+    const row = matrix[i];
+    for (let j = 0; j < row.length; j++) {
+      const cell = row[j];
+      // Start by finding A's
+      if (cell !== "A") {
+        continue;
+      }
+
+      // We have an 'A', now look for each arm of the 'X' shape. Start with the \ arm
+      //
+      // S        M
+      //  A   or   A
+      //   M        S
+      const tl = at(i-1, j-1);
+      const br = at(i+1, j+1);
+      if ((tl === 'S' && br === 'M') || (tl === 'M' && br === 'S')) {
+        // Now check for the / arm
+        //
+        //   S        M
+        //  A   or   A
+        // M        S
+        const tr = at(i+1, j-1);
+        const bl = at(i-1, j+1);
+        if ((tr === 'S' && bl === 'M') || (tr === 'M' && bl === 'S')) {
+          // console.log("Found X-MAS centered at (%d,%d)", i, j);
+          count++;
+        }
+      }
+    }
+  }
+  return count;
+}
+
 function getCoords(matrix, i, j) {
   return matrix[i]?.[j] ?? undefined;
 }
 
-const horizCount = findHorizontals();
-console.log("Found %d horizontals", horizCount);
+function part1() {
+  const horizCount = findHorizontals();
+  console.log("  Found %d horizontals", horizCount);
 
-const vertCount = findVerticals();
-console.log("Found %d verticals", vertCount);
+  const vertCount = findVerticals();
+  console.log("  Found %d verticals", vertCount);
 
-const diagCount = findDiagonals()
-console.log("Found %d diagonals", diagCount);
+  const diagCount = findDiagonals();
+  console.log("  Found %d diagonals", diagCount);
 
-const total = vertCount + horizCount + diagCount;
-console.log("TOTAL: %d", total);
+  const total = vertCount + horizCount + diagCount;
+  console.log("Total XMAS: %d", total);
+}
+
+function part2() {
+  const x_masCount = findXmasCount();
+  console.log("Total X-MAS: %d", x_masCount);
+}
+
+function main() {
+  part1();
+  part2();
+}
+
+main();
